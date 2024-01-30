@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "513326554770",
+    "project_id": "shoe-rack-6bf82",
+    "storage_bucket": "shoe-rack-6bf82.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513326554770:android:2eeb59745afd206484504b",
+        "android_client_info": {
+          "package_name": "com.example.shoerack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDe9MpRM-6uGh3N99zSdFSD29v5Bjbe9WU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
