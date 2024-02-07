@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shoerack/AdminHomePage.dart';
+import 'package:shoerack/BottonNav.dart';
 import 'package:shoerack/firebase_auth_implementation/firebase_auth_service.dart';
 import 'package:shoerack/home.dart';
 import 'package:shoerack/register.dart';
@@ -134,7 +135,7 @@ class _LoginState extends State<login> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         // Check if the entered email and password are for the admin
-                        if (emailController.text == 'aaron1' &&
+                        if (emailController.text == 'aaron1@gmail.com' &&
                             passwordController.text == 'aaron@123') {
                           adminLogin();
                         } else {
@@ -185,7 +186,7 @@ class _LoginState extends State<login> {
     if (user != null) {
       print("User is Successfully SignedIn");
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => BottomNav()),
       );
     } else {
       print("Some error happened");
