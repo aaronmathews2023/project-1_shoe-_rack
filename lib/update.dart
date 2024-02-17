@@ -1,9 +1,8 @@
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UpdateShoePage extends StatefulWidget {
@@ -20,6 +19,20 @@ class _UpdateShoePageState extends State<UpdateShoePage> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _colorsController = TextEditingController();
+  String imageUrl = '';
+  String shoeColor2 = '';
+  String shoeColor3 = '';
+  String shoeColor4 = '';
+
+  XFile? _leadingImage;
+  XFile? color2;
+  XFile? color3;
+  XFile? color4;
+
+  late String _leadingImageUrl = '';
+  late String color2url = '';
+  late String color3url = '';
+  late String color4url = '';
 
   String _selectedBrand = 'Nike';
   List<String> _brands = ['Nike', 'Adidas', 'Puma', 'Reebok'];
@@ -32,7 +45,6 @@ class _UpdateShoePageState extends State<UpdateShoePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch the current shoe details and set the controllers accordingly
     _fetchShoeDetails();
   }
 
@@ -48,12 +60,15 @@ class _UpdateShoePageState extends State<UpdateShoePage> {
 
         setState(() {
           _selectedBrand = shoeData['brand'];
+          imageUrl = shoeData['leadingImageUrl'];
+          shoeColor2 = shoeData['color2'];
+          shoeColor3 = shoeData['color3'];
+          shoeColor4 = shoeData['color4'];
           _modelNameController.text = shoeData['model'];
           _priceController.text = shoeData['price'];
           _descriptionController.text = shoeData['description'];
           _colorsController.text = shoeData['colors'];
           _selectedSizes = List.from(shoeData['sizes']);
-          // You may need to load color images here as well if stored differently
         });
       }
     } catch (e) {
@@ -72,7 +87,7 @@ class _UpdateShoePageState extends State<UpdateShoePage> {
         });
       }
     } catch (e) {
-      print('Error picking image: $e');
+      print('Error picking color image: $e');
     }
   }
 
@@ -86,46 +101,27 @@ class _UpdateShoePageState extends State<UpdateShoePage> {
     });
   }
 
-  void _updateShoe() async {
+  Future<void> _updateShoe() async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
+      await FirebaseFirestore.instance
+          .collection('shoes')
+          .doc(widget.documentId)
+          .update({
+        'brand': _selectedBrand,
+        'model': _modelNameController.text,
+        'price': _priceController.text,
+        'description': _descriptionController.text,
+        'colors': _colorsController.text,
+        'sizes': _selectedSizes,
+        'color2': shoeColor2,
+        'color3': shoeColor3,
+        'color4': shoeColor4,
+        'leadingImageUrl': imageUrl,
+      });
 
-      if (user != null && widget.documentId != null) {
-        CollectionReference shoes =
-            FirebaseFirestore.instance.collection('shoes');
-
-        await shoes.doc(widget.documentId).update({
-          'brand': _selectedBrand,
-          'model': _modelNameController.text,
-          'price': _priceController.text,
-          'description': _descriptionController.text,
-          'sizes': _selectedSizes,
-          'colors': _colorsController.text,
-          'colorImages': _colorImages.map((image) => image?.path).toList(),
-        });
-
-        Navigator.pop(context); // Navigate back after successful update
-      }
+      print('Shoe updated!');
     } catch (e) {
       print('Error updating shoe: $e');
-      // Handle the error as needed
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to update shoe. Please try again later.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
     }
   }
 
@@ -177,26 +173,140 @@ class _UpdateShoePageState extends State<UpdateShoePage> {
                 ),
                 SizedBox(height: 20),
                 Row(
-                  children: List.generate(_colorImages.length, (index) {
-                    return Expanded(
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () => _pickImage(index),
-                            child: Container(
-                              height: 100,
-                              margin: EdgeInsets.all(8),
-                              color: Colors.grey[200],
-                              child: _colorImages[index] != null
-                                  ? Image.file(File(_colorImages[index]!.path))
-                                  : Icon(Icons.add, size: 40),
-                            ),
-                          ),
-                          Text('Color ${index + 1}'),
-                        ],
-                      ),
-                    );
-                  }),
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: imageUrl.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () {
+                                    _pickLeadingImage();
+                                  },
+                                  child: Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.add,
+                                  size: 35,
+                                ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Color 1',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: shoeColor2.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () {
+                                    pickColor2image();
+                                  },
+                                  child: Image.network(
+                                    shoeColor2,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    pickColor2image();
+                                  },
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 35,
+                                  ),
+                                ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Color 2',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: shoeColor3.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () {
+                                    pickcolor3image();
+                                  },
+                                  child: Image.network(
+                                    shoeColor3,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    pickcolor3image();
+                                  },
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 35,
+                                  ),
+                                ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Color 3',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: shoeColor4.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () {
+                                    pickcolor4image();
+                                  },
+                                  child: Image.network(
+                                    shoeColor4,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    pickcolor4image();
+                                  },
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 35,
+                                  ),
+                                ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Color 4',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    )
+                  ],
                 ),
                 SizedBox(height: 20),
                 Text('Sizes', style: TextStyle(fontSize: 16)),
@@ -223,5 +333,149 @@ class _UpdateShoePageState extends State<UpdateShoePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickLeadingImage() async {
+    final imagePicker = ImagePicker();
+    try {
+      final XFile? pickedImage =
+          await imagePicker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        _leadingImageUrl = await uploadImage(pickedImage);
+        setState(() {
+          _leadingImage = pickedImage;
+        });
+        uploadImage(pickedImage);
+      }
+    } catch (e) {
+      print('Error picking leading image: $e');
+    }
+  }
+
+  Future<String> uploadImage(XFile image) async {
+    try {
+      final Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('leadingImages/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final UploadTask uploadTask = ref.putFile(File(image.path));
+      final TaskSnapshot snapshot = await uploadTask;
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      setState(() {
+        imageUrl = downloadUrl;
+      });
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return '';
+    }
+  }
+
+  Future<void> pickColor2image() async {
+    final imagePicker = ImagePicker();
+    try {
+      final XFile? pickedImage =
+          await imagePicker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        color2url = await uploadImage(pickedImage);
+        setState(() {
+          color2 = pickedImage;
+        });
+        color2upload(pickedImage);
+      }
+    } catch (e) {
+      print('Error picking leading image: $e');
+    }
+  }
+
+  Future<String> color2upload(XFile image) async {
+    try {
+      final Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('leadingImages/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final UploadTask uploadTask = ref.putFile(File(image.path));
+      final TaskSnapshot snapshot = await uploadTask;
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+      setState(() {
+        shoeColor2 = downloadUrl;
+      });
+
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return '';
+    }
+  }
+
+  Future<void> pickcolor3image() async {
+    final imagePicker = ImagePicker();
+    try {
+      final XFile? pickedImage =
+          await imagePicker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        color3url = await uploadImage(pickedImage);
+        setState(() {
+          color3 = pickedImage;
+        });
+        color3upload(pickedImage);
+      }
+    } catch (e) {
+      print('Error picking leading image: $e');
+    }
+  }
+
+  Future<String> color3upload(XFile image) async {
+    try {
+      final Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('leadingImages/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final UploadTask uploadTask = ref.putFile(File(image.path));
+      final TaskSnapshot snapshot = await uploadTask;
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      setState(() {
+        shoeColor3 = downloadUrl;
+      });
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return '';
+    }
+  }
+
+  Future<void> pickcolor4image() async {
+    final imagePicker = ImagePicker();
+    try {
+      final XFile? pickedImage =
+          await imagePicker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        color4url = await uploadImage(pickedImage);
+        setState(() {
+          color4 = pickedImage;
+        });
+        color4image(pickedImage);
+      }
+    } catch (e) {
+      print('Error picking leading image: $e');
+    }
+  }
+
+  Future<String> color4image(XFile image) async {
+    try {
+      final Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('leadingImages/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final UploadTask uploadTask = ref.putFile(File(image.path));
+      final TaskSnapshot snapshot = await uploadTask;
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      setState(() {
+        shoeColor4 = downloadUrl;
+      });
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return '';
+    }
   }
 }
