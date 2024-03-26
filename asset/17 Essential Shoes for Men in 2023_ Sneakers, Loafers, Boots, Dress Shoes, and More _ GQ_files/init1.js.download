@@ -1,0 +1,100 @@
+//<script>
+bouncex.init1Response({
+    "brand_styles": false,
+    "webfonts": false,
+    "cookie": {
+        "did": "508309910038740618",
+        "vid": 1711090314115823,
+        "v": {
+            "submitted_onsite": false,
+            "submitted_email_beststuff": false,
+            "submitted_email_gqrecommends": false,
+            "submitted_email_daily": false,
+            "submitted_email_u_up": false,
+            "submitted_email_level_up": false,
+            "submitted_email_gqstyle": false,
+            "buy_now": "false",
+            "ccpa_cali": "true",
+            "reg_gate_submitted": false,
+            "reg_gate_url": "false",
+            "submitted_email_shownotes": false
+        },
+        "fvt": 1711090314,
+        "ao": 0,
+        "lp": "https%3A%2F%2Fwww.gq.com%2Fstory%2Fshoes-for-men",
+        "as": 0,
+        "vpv": 1,
+        "d": "d",
+        "r": "www.google.com",
+        "cvt": 1711090314,
+        "sid": -1,
+        "gcr": 60,
+        "m": 0,
+        "lvt": 1711090314,
+        "rcs_google.": 1
+    },
+    "debug": false,
+    "testmode": {
+        "bxtest": false,
+        "office": false,
+        "bxdev": false
+    },
+    "state": {
+        "newvid": true,
+        "iol": true,
+        "tn": 1711090314,
+        "pvid": 1,
+        "gdpr": false,
+        "casl": false,
+        "device": {
+            "browser": "Chrome",
+            "version": "122.0.0.0",
+            "platform": "Windows 10",
+            "device_type": "desktop"
+        },
+        "no_kinesis": true,
+        "request_token": "303a77ddda3d08c5357028ffe1668f0f27ea99b8b7a0fb6815a36cf749cf8966",
+        "mobile": false,
+        "vip": "103.191.187.6",
+        "geo": {
+            "country": "IN",
+            "country_code": "IN",
+            "country_code3": "IND",
+            "country_name": "India",
+            "region": "KL",
+            "region_name": "Kerala",
+            "city": "Angamāli",
+            "postal_code": "683572",
+            "zip": "683572",
+            "area_code": "",
+            "dma_code": null,
+            "metro_code": null,
+            "continent_code": "AS",
+            "google": {
+                "zip": "",
+                "country": "IN",
+                "country_code": "IN",
+                "region": "KL",
+                "city": "Kochi",
+                "continent_code": "AS",
+                "country_name": "India",
+                "region_name": "Kerala"
+            }
+        }
+    },
+    "gbi_stacks": false,
+    "creatives": false,
+    "campaigns": false,
+    "gbi2_enabled": false,
+    "ssp_config": false,
+    "push_filepath": "\/",
+    "sms_enabled": false,
+    "sms_terms_conditions_link": "",
+    "sms_short_codes": [],
+    "brand_name": "",
+    "ads_config": {},
+    "visit_cookie_updates": {
+        "is_go_session": true,
+        "is_gp_session": false
+    }
+});

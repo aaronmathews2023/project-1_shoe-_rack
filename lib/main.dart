@@ -1,16 +1,29 @@
+
+
+// ignore_for_file: unnecessary_import
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shoerack/BottonNav.dart';
-import 'package:shoerack/Screenone.dart';
-import 'package:shoerack/firebase_options.dart';
-import 'package:shoerack/home.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+import 'package:shoerack/db/model/data_model.dart';
+import 'package:shoerack/db/model/fav_function.dart';
+
+import 'package:shoerack/screens/user_side/Screenone.dart';
+import 'package:shoerack/firebase_auth_implementation/firebase_options.dart';
 
 void main() async {
   // await fetchProducts();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  products = await fetchProducts();
-  print(products);
+  await Hive.initFlutter();
+  if (!Hive.isAdapterRegistered(ProducthiveAdapter().typeId)) {
+    Hive.registerAdapter(ProducthiveAdapter());
+  }
+
+  await get_fav();
+
   runApp(const MyApp());
 }
 
@@ -19,9 +32,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BottomNav(),
+      home: Screenone(),
     );
   }
 }
