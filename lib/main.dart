@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: unnecessary_import
 
 import 'package:firebase_core/firebase_core.dart';
@@ -22,7 +20,7 @@ void main() async {
     Hive.registerAdapter(ProducthiveAdapter());
   }
 
-  await get_fav();
+  await GetFav();
 
   runApp(const MyApp());
 }

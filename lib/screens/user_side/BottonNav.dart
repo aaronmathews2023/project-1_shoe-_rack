@@ -6,7 +6,7 @@ import 'package:shoerack/screens/user_side/notification.dart';
 import 'package:shoerack/screens/user_side/proflie.dart';
 
 class BottomNav extends StatefulWidget {
-  BottomNav({super.key});
+  const BottomNav({super.key});
 
   @override
   State<BottomNav> createState() => _BottomNavState();
@@ -18,9 +18,9 @@ class _BottomNavState extends State<BottomNav> {
   @override
   Widget build(BuildContext context) {
     List pages = [
-      HomePage(),
+      const HomePage(),
       FavoritesPage(),
-      NotificationPage(),
+      const NotificationPage(),
       ProfilePage(),
     ];
 
@@ -28,13 +28,13 @@ class _BottomNavState extends State<BottomNav> {
       child: Scaffold(
         body: pages[myIndex],
         bottomNavigationBar: CurvedNavigationBar(
-          animationDuration: Duration(milliseconds: 300),
+          animationDuration: const Duration(milliseconds: 300),
           onTap: (index) {
             setState(() {
               myIndex = index;
             });
           },
-          items: [
+          items: const [
             Icon(Icons.home),
             Icon(Icons.favorite),
             Icon(Icons.notification_add),

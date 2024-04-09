@@ -1,13 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shoerack/screens/admin/Delete.dart';
+import 'package:shoerack/screens/admin/accept_reject.dart';
 import 'package:shoerack/screens/admin/add_shoe.dart';
 import 'package:shoerack/screens/admin/listpage.dart';
 import 'package:shoerack/screens/admin/update.dart';
 import 'package:shoerack/screens/user_side/login.dart';
 
+// ignore: use_key_in_widget_constructors
 class AdminHomePage extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _AdminHomePageState createState() => _AdminHomePageState();
 }
 
@@ -17,38 +20,39 @@ class _AdminHomePageState extends State<AdminHomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Admin Page'),
+        title: const Text('Admin Page'),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () async {
               // Show alert dialog on logout button press
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('Logout'),
-                    content: Text('Are you sure you want to logout?'),
+                    title: const Text('Logout'),
+                    content: const Text('Are you sure you want to logout?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop(); // Close the dialog
                         },
-                        child: Text('Cancel'),
+                        child: const Text('Cancel'),
                       ),
                       TextButton(
                         onPressed: () async {
                           // Perform logout operation
                           await FirebaseAuth.instance.signOut();
+                          // ignore: use_build_context_synchronously
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
                               builder: (context) =>
-                                  login(), // Navigate to login screen
+                                  const login(), // Navigate to login screen
                             ),
                             (route) => false,
                           );
                         },
-                        child: Text('Logout'),
+                        child: const Text('Logout'),
                       ),
                     ],
                   );
@@ -62,7 +66,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
                 image: DecorationImage(
                   fit: BoxFit.fill,
@@ -81,7 +85,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               ),
             ),
             ListTile(
-              title: Text('ADD_Shoe'),
+              title: const Text('ADD_Shoe'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -90,20 +94,28 @@ class _AdminHomePageState extends State<AdminHomePage> {
               },
             ),
             ListTile(
-              title: Text('List Shoes'),
+              title: const Text('List Shoes'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProductList()),
+                  MaterialPageRoute(builder: (context) => const ProductList()),
                 );
               },
             ),
+            ListTile(
+              title: const Text('Product Sales'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const AdminNofication()));
+              },
+            )
           ],
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
+        decoration: const BoxDecoration(
+          // ignore: unnecessary_const
+          image: const DecorationImage(
             opacity: 0.5, // Adjust opacity as needed
             fit: BoxFit.cover,
             image: AssetImage(
@@ -116,22 +128,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 }
 
+// ignore: use_key_in_widget_constructors
 class AdminSectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Section'),
+        title: const Text('Admin Section'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Welcome to Admin Section!',
               style: TextStyle(fontSize: 20),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context,
@@ -139,9 +152,9 @@ class AdminSectionPage extends StatelessWidget {
                 // Handle Add Shoe button press
                 // Add your logic here
               },
-              child: Text('Add Shoe'),
+              child: const Text('Add Shoe'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context,
@@ -149,9 +162,9 @@ class AdminSectionPage extends StatelessWidget {
                 // Handle Update button press
                 // Add your logic here
               },
-              child: Text('Update'),
+              child: const Text('Update'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context,
@@ -159,17 +172,17 @@ class AdminSectionPage extends StatelessWidget {
                 // Handle Delete button press
                 // Add your logic here
               },
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProductList()));
+                    MaterialPageRoute(builder: (context) => const ProductList()));
                 // Handle Delete button press
                 // Add your logic here
               },
-              child: Text('list'),
+              child: const Text('list'),
             ),
           ],
         ),

@@ -16,24 +16,26 @@ class Product {
   final String color2;
   final String color3;
   final String description;
+  final List<String> sizes;
 
-  Product({
-    required this.id,
-    required this.brand,
-    required this.name,
-    required this.image,
-    required this.price,
-    required this.color1,
-    required this.color2,
-    required this.color3,
-    required this.description,
-  });
+  Product(
+      {required this.id,
+      required this.brand,
+      required this.name,
+      required this.image,
+      required this.price,
+      required this.color1,
+      required this.color2,
+      required this.color3,
+      required this.description,
+      required this.sizes});
 }
 
 class Details extends StatefulWidget {
   final String productId;
+  List<paymentDetails> paymentdatalist = [];
 
-  const Details({
+  Details({
     Key? key,
     required this.productId,
   }) : super(key: key);
@@ -83,6 +85,19 @@ class _DetailsState extends State<Details> {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else {
               var doc = snapshot.data!;
+              widget.paymentdatalist.add(paymentDetails(
+                  id: doc.id,
+                  totalAmount: double.parse(doc['price']),
+                  image: doc['leadingImageUrl'],
+                  sizes: List.from(doc['sizes']),
+                  name: doc['model']));
+              // widget.paymentdatalist[] = paymentDetails(
+              //     id: doc.id,
+              //     totalAmount: double.parse(doc['price']),
+              //     image: doc['leadingImageUrl'],
+              //     sizes: List.from(doc['sizes']),
+              //     name: doc['model']);
+
               productDetails = Product(
                   id: doc.id,
                   brand: doc['brand'],
@@ -92,7 +107,8 @@ class _DetailsState extends State<Details> {
                   color1: doc['color2'],
                   color2: doc['color3'],
                   color3: doc['color4'],
-                  description: doc['description']);
+                  description: doc['description'],
+                  sizes: List.from(doc['sizes']));
               ValueNotifier<List<String>> imageList = ValueNotifier([
                 productDetails.image,
                 productDetails.color1,
@@ -180,9 +196,9 @@ class _DetailsState extends State<Details> {
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'Brand: ${productDetails.brand}\n'
-                            'Model: ${productDetails.name}\n'
-                            'Price: \$${productDetails.price.toStringAsFixed(2)}\n',
+                            '${productDetails.brand}\n'
+                            '${productDetails.name}\n'
+                            '\Rs${productDetails.price.toStringAsFixed(2)}\n',
                             style: const TextStyle(fontSize: 16),
                           ),
                         ],
@@ -293,9 +309,8 @@ class _DetailsState extends State<Details> {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  PaymentPage(totalAmount: productDetails.price),
-            ));
+                builder: (context) =>
+                    PaymentPage(paymentdatalist: widget.paymentdatalist)));
       },
       child: Container(
         decoration: BoxDecoration(color: color),
@@ -338,17 +353,20 @@ class _DetailsState extends State<Details> {
 
   String formattedFutureDate() {
     // Your date formatting logic goes here
-    return DateFormat.yMMMd().format(DateTime.now().add(const Duration(days: 3)));
+    return DateFormat.yMMMd()
+        .format(DateTime.now().add(const Duration(days: 3)));
   }
 
   void addToCart() {
     FirebaseFirestore.instance
         .collection('cart')
         .where('productId', isEqualTo: productDetails.id)
+        .where('sizes',
+            arrayContains: select.value) // Check if same size already exists
         .get()
         .then((QuerySnapshot querySnapshot) {
       if (querySnapshot.size > 0) {
-        // Product already exists in the cart, update count
+        // Product already exists in the cart with the same size, update count
         querySnapshot.docs.first.reference.update({
           'count': (querySnapshot.docs.first['count'] ?? 1) + 1,
         }).then((_) {
@@ -370,18 +388,18 @@ class _DetailsState extends State<Details> {
             },
           );
         }).catchError((error) {
-         
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Error updating cart")));
         });
       } else {
-        // Product doesn't exist in the cart, add new entry
+        // Product doesn't exist in the cart or with different size, add new entry
         FirebaseFirestore.instance.collection('cart').add({
           'productId': productDetails.id,
           'name': productDetails.name,
           'price': productDetails.price,
           'image': productDetails.image,
-          'count': 1, // Set initial count to 1
+          'count': 1,
+          'sizes': [select.value], // Set initial count to 1
         }).then((_) {
           showDialog(
             context: context,

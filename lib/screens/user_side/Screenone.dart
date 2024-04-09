@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shoerack/screens/admin/AdminHomePage.dart';
+import 'package:shoerack/screens/admin/accept_reject.dart';
 import 'package:shoerack/screens/user_side/BottonNav.dart';
+import 'package:shoerack/screens/user_side/notification.dart';
 import 'package:shoerack/screens/user_side/page1.dart';
 
 class Screenone extends StatefulWidget {

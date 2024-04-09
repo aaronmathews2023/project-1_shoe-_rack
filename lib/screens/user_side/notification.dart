@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shoerack/screens/user_side/Unsucessfull.dart';
+import 'package:shoerack/screens/user_side/order_sucessful.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({Key? key}) : super(key: key);
@@ -7,44 +9,43 @@ class NotificationPage extends StatefulWidget {
   State<NotificationPage> createState() => _NotificationPageState();
 }
 
-class _NotificationPageState extends State<NotificationPage> {
-  List<String> notifications = [
-    'New product available!',
-    'Sale starting tomorrow!',
-    'Your order has been shipped.',
-    // Add more notifications as needed
-  ];
+class _NotificationPageState extends State<NotificationPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notifications'),
+        title: const Text('Orders'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Sucessfull Order'),
+            Tab(text: 'Unsucessfull Order'),
+          ],
+        ),
       ),
-      body: notifications.isEmpty
-          ? Center(
-              child: Text('No notifications yet.'),
-            )
-          : ListView.builder(
-              itemCount: notifications.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  elevation: 6.0,
-                  margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  child: ListTile(
-                    title: Text(
-                      notifications[index],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    // Add more details or actions related to the notification
-                    // You can use ListTile's subtitle, leading, trailing, etc.
-                  ),
-                );
-              },
-           
-           
-       ),
-       
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          SucessfulOrder(),
+          Unsucessfull(),
+        ],
+      ),
     );
   }
 }

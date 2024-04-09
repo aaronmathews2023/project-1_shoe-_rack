@@ -1,35 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Import CachedNetworkImage
 import 'package:shoerack/screens/user_side/BottonNav.dart';
 import 'package:shoerack/screens/user_side/payment.dart';
 
+// ignore: must_be_immutable
 class CartPage extends StatelessWidget {
+  List<paymentDetails> paymentdatalist = [];
+
+  CartPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cart'),
+        title: const Text('Cart'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context)
                 .pushReplacement(MaterialPageRoute(builder: (_) {
-              return BottomNav();
+              return const BottomNav();
             }));
           },
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.delete_forever),
+            icon: const Icon(Icons.delete_forever),
             onPressed: () {
-              FirebaseFirestore.instance
-                  .collection('cart')
-                  .get()
-                  .then((snapshot) {
-                for (DocumentSnapshot ds in snapshot.docs) {
-                  ds.reference.delete();
-                }
-              });
+              showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                        title: const Text("Delete"),
+                        content: const Text('Are you sure you want to delete?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                              onPressed: () {
+                                FirebaseFirestore.instance
+                                    .collection('cart')
+                                    .get()
+                                    .then((snapshot) {
+                                  for (DocumentSnapshot ds in snapshot.docs) {
+                                    ds.reference.delete();
+                                  }
+                                  Navigator.pop(context);
+                                });
+                              },
+                              child: const Text("OK"))
+                        ],
+                      ));
             },
           ),
         ],
@@ -42,21 +64,22 @@ class CartPage extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.data!.docs.isEmpty) {
-            return Center(
+            return const Center(
               child: Text('Your cart is empty.'),
             );
           }
 
-          // Calculate total amount
           double totalAmount = snapshot.data!.docs.fold(
             0,
             (previousValue, doc) => previousValue + doc['price'] * doc['count'],
           );
 
+          // ignore: unused_local_variable
+          int i = -1;
           return Column(
             children: [
               Expanded(
@@ -71,18 +94,36 @@ class CartPage extends StatelessWidget {
                         data['name'] == null ||
                         data['price'] == null ||
                         data['count'] == null) {
-                      return SizedBox(); // Skip rendering if data is null
+                      return const SizedBox(); // Skip rendering if data is null
                     }
+                    String a = data['sizes'].toString();
+                    paymentdatalist.add(paymentDetails(
+                        id: document.id,
+                        totalAmount: data['price'],
+                        sizes: [a],
+                        image: data['image'],
+                        name: data['name']));
+                    i++;
 
                     return ListTile(
-                      leading: Image.network(data['image']!),
+                      leading: CachedNetworkImage(
+                        // Use CachedNetworkImage widget
+                        imageUrl: data['image'],
+                        placeholder: (context, url) => Center(
+                            child:
+                                const CircularProgressIndicator()), // Show circular progress indicator as placeholder
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
                       title: Text(data['name']!),
-                      subtitle: Text('\$${data['price']}'),
+                      subtitle: Text(
+                        'Rs${data['price']},  Size: ${data['sizes']}',
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.remove),
+                            icon: const Icon(Icons.remove),
                             onPressed: () {
                               int count = data['count'] ?? 1;
                               if (count > 1) {
@@ -94,7 +135,7 @@ class CartPage extends StatelessWidget {
                           ),
                           Text('${data['count'] ?? 1}'),
                           IconButton(
-                            icon: Icon(Icons.add),
+                            icon: const Icon(Icons.add),
                             onPressed: () {
                               int count = data['count'] ?? 1;
                               document.reference.update({'count': count + 1});
@@ -106,30 +147,31 @@ class CartPage extends StatelessWidget {
                   }).toList(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Container(
                 color: Colors.yellow,
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       ' Amount: \$${totalAmount.toStringAsFixed(2)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     ElevatedButton(
-                      
                       onPressed: () {
                         Navigator.of(context)
                             .push(MaterialPageRoute(builder: (_) {
-                          return PaymentPage(totalAmount: totalAmount);
+                          return PaymentPage(
+                            paymentdatalist: paymentdatalist,
+                            tt: totalAmount.toString(),
+                          );
                         }));
-                        
                       },
-                      child: Text('Proceed to Payment'),
+                      child: const Text('Proceed to Payment'),
                     ),
                   ],
                 ),

@@ -1,9 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class paymentDetails {
+  String name;
+  double totalAmount;
+  String image;
+  String id;
+  List<String> sizes;
+
+  paymentDetails(
+      {required this.id,
+      required this.totalAmount,
+      required this.image,
+      required this.sizes,
+      required this.name});
+}
 
 class PaymentPage extends StatefulWidget {
-  final double totalAmount;
-
-  const PaymentPage({Key? key, required this.totalAmount}) : super(key: key);
+  final List<paymentDetails> paymentdatalist;
+  String? tt;
+  PaymentPage({
+    Key? key,
+    this.tt,
+    required this.paymentdatalist,
+    //  required List<Map<String, dynamic>> cartItems
+  }) : super(key: key);
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -36,9 +57,7 @@ class _PaymentPageState extends State<PaymentPage> {
             });
           } else {
             // Handle continue button tap in the last step
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Payment confirmed.'),
-            ));
+            _submitPaymentDetails();
           }
         },
         steps: [
@@ -47,9 +66,10 @@ class _PaymentPageState extends State<PaymentPage> {
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                    'Total Amount: \$${widget.totalAmount.toStringAsFixed(2)}'),
-                // Additional details from the cart page can be added here
+                widget.tt != null
+                    ? Text('Total Amount: \$${widget.tt}')
+                    : Text(
+                        'Total Amount: \$${widget.paymentdatalist[0].totalAmount.toStringAsFixed(2)}'),
               ],
             ),
             isActive: true,
@@ -100,5 +120,55 @@ class _PaymentPageState extends State<PaymentPage> {
         ],
       ),
     );
+  }
+
+  void _submitPaymentDetails() {
+    // Store payment details in Firestore
+    try {
+      for (int i = 0; i < widget.paymentdatalist.length; i++) {
+        FirebaseFirestore.instance.collection('payments').add({
+          'fullName': _fullNameController.text,
+          'email': _emailController.text,
+          'phoneNumber': _phoneNumberController.text,
+          'address': _addressController.text,
+          'totalAmount': widget.paymentdatalist[i].totalAmount,
+          'timestamp': FieldValue.serverTimestamp(),
+          'productId': widget.paymentdatalist[i].id,
+          // 'productBrand': widget.brand,
+          'productName': widget.paymentdatalist[i].name,
+          'productImage': widget.paymentdatalist[i].image,
+          // 'productPrice': widget.paymentdatalist[0].,
+          'productSizes': widget.paymentdatalist[i].sizes[0],
+        });
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Payment details submitted successfully.'),
+      ));
+    } catch (e) {}
+    // FirebaseFirestore.instance.collection('payments').add({
+    //   // 'fullName': _fullNameController.text,
+    //   // 'email': _emailController.text,
+    //   // 'phoneNumber': _phoneNumberController.text,
+    //   // 'address': _addressController.text,
+    //   // 'totalAmount': widget.paymentdatalist[0].totalAmount,
+    //   // 'timestamp': FieldValue.serverTimestamp(),
+    //   // 'productId': widget.paymentdatalist[0].id,
+    //   // // 'productBrand': widget.brand,
+    //   // 'productName': widget.paymentdatalist[0].name,
+    //   // 'productImage': widget.paymentdatalist[0].image,
+    //   // // 'productPrice': widget.paymentdatalist[0].,
+    //   // 'productSizes': widget.paymentdatalist[0].sizes,
+    // }).then((_) {
+    //   // Payment details successfully added to Firestore
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     content: Text('Payment details submitted successfully.'),
+    //   ));
+    //   // You can navigate to a success page or do any other action here
+    // }).catchError((error) {
+    //   // Error occurred while adding payment details
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     content: Text('Failed to submit payment details. Please try again.'),
+    //   ));
+    // });
   }
 }

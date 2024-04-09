@@ -14,7 +14,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.back_hand))],
           title: const Text('Favorites'),
         ),
         body: favlist.value.isEmpty
@@ -62,9 +61,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                 price: favlist.value[index].price,
                                 colors: favlist.value[index].colors,
                               );
-                              await del_fav(p: p);
+                              await DelFav(p: p);
                               setState(() {
-                                get_fav();
+                                GetFav();
                               });
                             },
                             icon: const Icon(
